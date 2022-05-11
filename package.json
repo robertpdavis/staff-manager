@@ -1,0 +1,24 @@
+{
+  "name": "staff-manager",
+  "version": "1.0.0",
+  "description": "An node.js console maanaged emplpyee management application.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/robertpdavis/staff-manager.git"
+  },
+  "author": "Rob Davis",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/robertpdavis/staff-manager/issues"
+  },
+  "homepage": "https://github.com/robertpdavis/staff-manager#readme",
+  "dependencies": {
+    "console.table": "^0.10.0",
+    "inquirer": "^8.2.4",
+    "mysql2": "^2.3.3"
+  }
+}
