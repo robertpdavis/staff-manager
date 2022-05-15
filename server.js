@@ -87,6 +87,7 @@ function prompter(choice) {
             case "Add Role":
               console.log("Add Role");
               prompter('createRole');
+
               break;
             case "Add Employee":
               console.log("Add Employee");
