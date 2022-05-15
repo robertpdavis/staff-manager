@@ -20,8 +20,8 @@ VALUES
        ("Peter", "Baker", 6, null),
        ("Vicky", "Brown", 7, null),
        ("Rick", "Barrett", 8, null),
-       ("Mike", "Smith", 1, 4),
-       ("Peter", "Taylor", 5, 5),
-       ("John","Porter", 2, 6);
+       ("Mike", "Smith", 1, 1),
+       ("Peter", "Taylor", 5, 2),
+       ("John","Porter", 2, 3);
 
 
