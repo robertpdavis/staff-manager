@@ -2,8 +2,9 @@
 const inquirer = require('inquirer');
 // Import and require dotenv
 require('dotenv').config();
-//Get questions for inquirer
-const questions = require('./helpers/questions');
+//Import inquirer questions class
+const InqQuestions = require('./lib/InqQuestions');
+const questions = new InqQuestions;
 //Create database instance and get connection
 const Database = require("./lib/Database");
 const database = new Database;
@@ -14,102 +15,139 @@ const cTable = require('console.table');
 function prompter(choice) {
 
   const queries = database.getQueries();
-  var question;
+  var questionList;
+  var data;
 
   //Determine inquirer quesiton list
   switch (choice) {
     case 'options':
-      question = questions.options
+      questionList = questions.getQuestion('options');
       break;
     case 'createDepartment':
-      question = questions.createDepartment
+      questionList = questions.getQuestion('createDepartment');
       break;
     case 'createRole':
-      question = questions.createRole
+      //Get list of deparments
+      db.query(queries['listDepartments'], function (err, results) {
+        if (err) {
+          console.log(err);
+          return;
+        }
+        data = results;
+      });
+      questionList = questions.getQuestion('createRole', data);
       break;
     case 'createEmployee':
-      question = questions.createEmployee
+      questionList = questions.getQuestion('createEmployee');
       break;
     case 'updateEmployee':
-      question = questions.updateEmployee
+      questionList = questions.getQuestion('updateEmployee');
       break;
     default:
-      question = "";
+      questionList = "";
       return;
       break;
   }
 
-  if (question != "" && question != undefined) {
+  if (questionList != "" && questionList != undefined) {
     inquirer
-      .prompt(question)
+      .prompt(questionList)
       .then((answers) => {
+
         //Default question list answer
-        if (answers.options) {
-          switch (answers.options) {
-            case "View Departments":
-              sql = `SELECT a.id AS Id, a.name AS 'Department Name' FROM department a`;
-              db.query(queries['listDepartments'], function (err, results) {
+        switch (choice) {
+          case 'options':
+            switch (answers.options) {
+              case "View Departments":
+                db.query(queries['listDepartments'], function (err, results) {
+                  if (err) {
+                    console.log(err);
+                  } else {
+                    console.log('\nList of Departments');
+                    console.table(results);
+                    prompter('options');
+                  }
+                });
+                break;
+              case "View Roles":
+                db.query(queries['listRoles'], function (err, results) {
+                  if (err) {
+                    console.log(err);
+                  } else {
+                    console.log('\nList of Roles');
+                    console.table(results);
+                    prompter('options');
+                  }
+                });
+                break;
+              case "View Employees":
+                db.query(queries['listEmployees'], function (err, results) {
+                  if (err) {
+                    console.log(err);
+                  } else {
+                    console.log('\nList of Employees');
+                    console.table(results);
+                    prompter('options');
+                  }
+                });
+                break;
+              case "Add Department":
+                console.log("Add Department");
+                prompter('createDepartment');
+                break;
+              case "Add Role":
+                console.log("Add Role");
+                prompter('createRole');
+                break;
+              case "Add Employee":
+                console.log("Add Employee");
+                prompter('createEmployee');
+                break;
+              case "Update Employee":
+                console.log("Update Employee");
+                prompter('updateEmployee');
+                break;
+              case "Exit":
+                process.exit(0);
+                break;
+              default:
+                break;
+            }
+            break;
+          case 'createDepartment':
+            if (answers.departmentName != "" && answers.departmentName != undefined) {
+              db.query(queries['createDepartment'], answers.departmentName, function (err, results) {
                 if (err) {
                   console.log(err);
                 } else {
-                  console.log('\nList of Departments');
-                  console.table(results);
+                  console.log(`Department ${answers.departmentName} added.\n`);
                   prompter('options');
                 }
               });
-              break;
-            case "View Roles":
-              db.query(queries['listRoles'], function (err, results) {
-                if (err) {
-                  console.log(err);
-                } else {
-                  console.log('\nList of Roles');
-                  console.table(results);
-                  prompter('options');
-                }
-              });
-              break;
-            case "View Employees":
-              db.query(queries['listEmployees'], function (err, results) {
-                if (err) {
-                  console.log(err);
-                } else {
-                  console.log('\nList of Employees');
-                  console.table(results);
-                  prompter('options');
-                }
-              });
-              break;
-            case "Add Department":
-              console.log("Add Department");
-              prompter('createDepartment');
-              break;
-            case "Add Role":
-              console.log("Add Role");
-              prompter('createRole');
-
-              break;
-            case "Add Employee":
-              console.log("Add Employee");
-              prompter('createEmployee');
-              break;
-            case "Update Employee":
-              console.log("Update Employee");
-              prompter('updateEmployee');
-              break;
-            case "Exit":
-              process.exit(0);
-              break;
-            default:
-              break;
-          }
+            } else {
+              console.log(`No department name.\n`);
+              prompter('options');
+            }
+            break;
+          case 'createRole':
 
 
 
+            break;
+          case 'createEmployee':
 
 
 
+            break;
+          case 'updateEmployee':
 
+
+
+            break;
+
+          default:
+            return;
+            break;
         }
       })
       .catch((error) => {
