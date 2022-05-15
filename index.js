@@ -29,81 +29,90 @@ function prompter(action, questionList) {
         if (answers.options) {
           switch (answers.options) {
             case "View Departments":
-              db.query(queries['listDepartments'], function (err, results) {
-                if (err) {
-                  console.log(err);
-                } else {
+              db
+                .then(conn => conn.query(queries['listDepartments']))
+                .then(([rows, fields]) => {
                   console.log('\nList of Departments');
-                  console.table(results);
+                  console.table(rows);
                   prompter('options');
-                }
-              });
+                })
+                .catch(err => {
+                  console.log(err);
+                });
               break;
             case "View Roles":
-              db.query(queries['listRoles'], function (err, results) {
-                if (err) {
-                  console.log(err);
-                } else {
+              db
+                .then(conn => conn.query(queries['listRoles']))
+                .then(([rows, fields]) => {
                   console.log('\nList of Roles');
-                  console.table(results);
+                  console.table(rows);
                   prompter('options');
-                }
-              });
-              break;
-            case "View Employees":
-              db.query(queries['listEmployees'], function (err, results) {
-                if (err) {
+                })
+                .catch(err => {
                   console.log(err);
-                } else {
-                  console.log('\nList of Employees');
-                  console.table(results);
-                  prompter('options');
-                }
-              });
+                });
               break;
+
+            case "View Employees":
+              db
+                .then(conn => conn.query(queries['listEmployees']))
+                .then(([rows, fields]) => {
+                  console.log('\nList of Employees');
+                  console.table(rows);
+                  prompter('options');
+                })
+                .catch(err => {
+                  console.log(err);
+                });
+              break;
+
             case "Add Department":
               questionList = questions.getQuestion('createDepartment');
               console.log("Add a new department...");
               prompter('createDepartment', questionList);
               break;
+
             case "Add Role":
               //Get list of departments for question
-              db.query(queries['listDepartments'], function (err, results) {
-                if (err) {
-                  console.log(err);
-                } else {
+              db
+                .then(conn => conn.query(queries['listDepartments']))
+                .then(([rows, fields]) => {
                   data = [];
-                  results.forEach(element => {
+                  rows.forEach(element => {
                     const obj = { name: element['Department Name'], value: element['Id'] };
                     data.push(obj);
                   });
                   questionList = questions.getQuestion('createRole', data);
                   console.log("Add a new role...");
                   prompter('createRole', questionList);
-                }
-              });
+                })
+                .catch(err => {
+                  console.log(err);
+                });
               break;
+
             case "Add Employee":
               //Get list of roles for question
               data = [];
               data[0] = [];
               data[1] = [];
 
-              db.query(queries['listRoles'], function (err, results) {
-                if (err) {
-                  console.log(err);
-                } else {
-                  results.forEach(element => {
+              db
+                .then(conn => conn.query(queries['listRoles']))
+                .then(([rows, fields]) => {
+                  rows.forEach(element => {
                     const obj = { name: element['Job Title'], value: element['Id'] };
                     data[0].push(obj);
-                  });
-                }
-              });
-              db.query(queries['listEmployees'], function (err, results) {
-                if (err) {
+                  })
+                })
+                .catch(err => {
                   console.log(err);
-                } else {
-                  results.forEach(element => {
+                });
+
+              db
+                .then(conn => conn.query(queries['listEmployees']))
+                .then(([rows, fields]) => {
+                  rows.forEach(element => {
                     const obj = { name: (element['First Name'] + " " + element['Last Name']), value: element['Id'] };
                     data[1].push(obj);
                   });
@@ -113,29 +122,33 @@ function prompter(action, questionList) {
                   questionList = questions.getQuestion('createEmployee', data);
                   console.log("Add a new employee...");
                   prompter('createEmployee', questionList);
-                }
-              });
+                })
+                .catch(err => {
+                  console.log(err);
+                });
               break;
+
             case "Update Employee Role":
               data = [];
               data[0] = [];
               data[1] = [];
 
-              db.query(queries['listRoles'], function (err, results) {
-                if (err) {
-                  console.log(err);
-                } else {
-                  results.forEach(element => {
+              db
+                .then(conn => conn.query(queries['listRoles']))
+                .then(([rows, fields]) => {
+                  rows.forEach(element => {
                     const obj = { name: element['Job Title'], value: element['Id'] };
                     data[0].push(obj);
-                  });
-                }
-              });
-              db.query(queries['listEmployees'], function (err, results) {
-                if (err) {
+                  })
+                })
+                .catch(err => {
                   console.log(err);
-                } else {
-                  results.forEach(element => {
+                });
+
+              db
+                .then(conn => conn.query(queries['listEmployees']))
+                .then(([rows, fields]) => {
+                  rows.forEach(element => {
                     const obj = { name: (element['First Name'] + " " + element['Last Name']), value: element['Id'] };
                     data[1].push(obj);
                   });
@@ -145,67 +158,70 @@ function prompter(action, questionList) {
                   questionList = questions.getQuestion('updateEmployeeRole', data);
                   console.log("Update an employee...");
                   prompter('updateEmployeeRole', questionList);
-                }
-              });
+                })
+                .catch(err => {
+                  console.log(err);
+                });
               break;
+
             case "Exit":
               process.exit(0);
               break;
+
             default:
               break;
           }
         } else {
           switch (action) {
             case "createDepartment":
-              db.query(queries['createDepartment'], [answers.departmentName], function (err, results) {
-                if (err) {
-                  console.log(err);
-                } else {
+              db
+                .then(conn => conn.query(queries['createDepartment'], [answers.departmentName]))
+                .then(([rows, fields]) => {
                   console.log(`Department ${answers.departmentName} added.\n`);
                   prompter('options');
-                }
-              });
-
+                })
+                .catch(err => {
+                  console.log(err);
+                });
               break;
             case "createRole":
-              db.query(queries['createRole'], [answers.roleName, answers.roleSalary, answers.departmentChoice], function (err, results) {
-                if (err) {
-                  console.log(err);
-                } else {
-                  console.log(`Role ${answers.roleName} added.\n`);
+              db
+                .then(conn => conn.query(queries['createRole'], [answers.roleName, answers.roleSalary, answers.departmentChoice]))
+                .then(([rows, fields]) => {
+                  console.log(`Department ${answers.roleName} added.\n`);
                   prompter('options');
-                }
-              });
-
+                })
+                .catch(err => {
+                  console.log(err);
+                });
               break;
             case "createEmployee":
-              db.query(queries['createEmployee'], [answers.firstName, answers.lastName, answers.roleChoice, answers.mgrChoice], function (err, results) {
-                if (err) {
-                  console.log(err);
-                } else {
-                  console.log(`Employee ${answers.firstName} ${answers.lastName} added.\n`);
+              db
+                .then(conn => conn.query(queries['createEmployee'], [answers.firstName, answers.lastName, answers.roleChoice, answers.employee]))
+                .then(([rows, fields]) => {
+                  console.log(`Employee ${answers.firstName} ${answers.lastName} updated.\n`);
                   prompter('options');
-                }
-              });
-
+                })
+                .catch(err => {
+                  console.log(err);
+                });
               break;
             case "updateEmployeeRole":
-              db.query(queries['updateEmployeeRole'], [answers.roleChoice, answers.employee], function (err, results) {
-                if (err) {
-                  console.log(err);
-                } else {
+              db
+                .then(conn => conn.query(queries['updateEmployeeRole'], [answers.roleChoice, answers.employee]))
+                .then(([rows, fields]) => {
                   console.log(`Employee updated.\n`);
                   prompter('options');
-                }
-              });
+                })
+                .catch(err => {
+                  console.log(err);
+                });
               break;
 
             default:
               break;
           }
         }
-
-
       })
       .catch((error) => {
         console.log(error);
