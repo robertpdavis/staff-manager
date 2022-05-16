@@ -28,36 +28,16 @@ function prompter(action, questionList) {
 
         if (answers.options) {
           switch (answers.options) {
-            case "View Departments":
-              db
-                .then(conn => conn.query(queries['listDepartments']))
-                .then(([rows, fields]) => {
-                  console.log('\nList of Departments');
-                  console.table(rows);
-                  prompter('options');
-                })
-                .catch(err => {
-                  console.log(err);
-                });
-              break;
-            case "View Roles":
-              db
-                .then(conn => conn.query(queries['listRoles']))
-                .then(([rows, fields]) => {
-                  console.log('\nList of Roles');
-                  console.table(rows);
-                  prompter('options');
-                })
-                .catch(err => {
-                  console.log(err);
-                });
-              break;
+            case ("View Departments"):
+            case ("View Roles"):
+            case ("View Employees"):
 
-            case "View Employees":
+              let option = answers.options.split(" ")[1];
+              console.log(option);
               db
-                .then(conn => conn.query(queries['listEmployees']))
+                .then(conn => conn.query(queries[`list${option}`]))
                 .then(([rows, fields]) => {
-                  console.log('\nList of Employees');
+                  console.log(`\nList of ${option}`);
                   console.table(rows);
                   prompter('options');
                 })
@@ -65,7 +45,6 @@ function prompter(action, questionList) {
                   console.log(err);
                 });
               break;
-
             case "Add Department":
               questionList = questions.getQuestion('createDepartment');
               console.log("Add a new department...");
@@ -169,6 +148,7 @@ function prompter(action, questionList) {
               break;
 
             default:
+              prompter('options');
               break;
           }
         } else {
