@@ -1,7 +1,5 @@
 // Import and require inquirer
 const inquirer = require('inquirer');
-// Import and require dotenv
-require('dotenv').config();
 //Import inquirer questions class
 const Questions = require('./lib/Questions');
 const questions = new Questions;
@@ -11,6 +9,7 @@ const database = new Database;
 const db = database.connection;
 // Import and require console.table
 const cTable = require('console.table');
+
 
 async function prompter(action, questionList) {
 
@@ -123,6 +122,7 @@ async function prompter(action, questionList) {
           break;
 
         case "Exit":
+          console.log("Goodbye!");
           process.exit(0);
           break;
 
@@ -153,7 +153,7 @@ async function prompter(action, questionList) {
 
           break;
         case "createEmployee":
-          response = await database.runQuery(`createEmployee`, [answers.firstName, answers.lastName, answers.roleChoice, answers.employee]);
+          response = await database.runQuery(`createEmployee`, [answers.firstName, answers.lastName, answers.roleChoice, answers.mgrChoice]);
           if (response['affectedRows'] > 0) {
             console.log(`Employee ${answers.firstName} ${answers.lastName} updated.\n`);
           }
