@@ -37,18 +37,41 @@ async function prompter(action, questionList) {
 
     if (answers.options) {
       switch (answers.options) {
+
         case ("View Departments"):
         case ("View Roles"):
         case ("View Employees"):
-
           let option = answers.options.split(" ")[1];
           rows = await database.runQuery(`list${option}`, "");
 
           console.log(`\nList of ${option}`);
           console.table(rows);
           prompter('options');
-
           break;
+
+        case ("View Employees By Manager"):
+          rows = await database.runQuery('listEmployees', "");
+          rows.forEach(element => {
+            obj = { name: (element['First Name'] + " " + element['Last Name']), value: element['Id'] };
+            data.push(obj);
+          });
+
+          questionList = questions.getQuestion('viewEmployeesByMgr', data);
+          prompter('listEmployeesByMgr', questionList);
+          break;
+
+        case ("View Employees By Department"):
+          //Get list of departments for question
+          rows = await database.runQuery('listDepartments', "");
+          rows.forEach(element => {
+            obj = { name: element['Department Name'], value: element['Id'] };
+            data.push(obj);
+          });
+
+          questionList = questions.getQuestion('viewEmployeesByDept', data);
+          prompter('listEmployeesByDept', questionList);
+          break;
+
         case "Add Department":
           questionList = questions.getQuestion('createDepartment');
           console.log("Add a new department...");
@@ -121,6 +144,36 @@ async function prompter(action, questionList) {
 
           break;
 
+        case "Update Employee Role":
+          data = [];
+          data[0] = [];
+          data[1] = [];
+
+          rows = await database.runQuery('listRoles', "");
+          rows.forEach(element => {
+            obj = { name: element['Job Title'], value: element['Id'] };
+            data[0].push(obj);
+          });
+
+          rows = await database.runQuery('listEmployees', "");
+          rows.forEach(element => {
+            obj = { name: (element['First Name'] + " " + element['Last Name']), value: element['Id'] };
+            data[1].push(obj);
+          });
+          obj = { name: 'None', value: null };
+          data[1].push(obj);
+
+          questionList = questions.getQuestion('updateEmployeeRole', data);
+          console.log("Update an employee...");
+          prompter('updateEmployeeRole', questionList);
+
+          break;
+
+
+
+
+
+
         case "Exit":
           console.log("Goodbye!");
           process.exit(0);
@@ -132,14 +185,40 @@ async function prompter(action, questionList) {
       }
     } else {
       switch (action) {
+
+        case "listEmployeesByMgr":
+          rows = await database.runQuery(`listEmployeesByMgr`, [answers.mgrChoice]);
+          if (rows[0]) {
+            console.log("\nList of Employees");
+            console.table(rows);
+          } else {
+            console.log("\nNo employees managed by this person.\n");
+          }
+          prompter('options');
+
+          break;
+
+        case "listEmployeesByDept":
+          rows = await database.runQuery(`listEmployeesByDept`, [answers.departmentChoice]);
+          if (rows[0]) {
+            console.log("\nList of Employees");
+            console.table(rows);
+          } else {
+            console.log("\nNo employees in this department.\n");
+          }
+          prompter('options');
+
+          break;
+
         case "createDepartment":
 
           response = await database.runQuery(`createDepartment`, [answers.departmentName]);
 
           if (response['affectedRows'] > 0) {
             console.log(`Department ${answers.departmentName} added.\n`);
+          } else {
+            console.log(`Department add failed. If error persists, contact support.\n`);
           }
-
           prompter('options');
 
           break;
@@ -148,6 +227,8 @@ async function prompter(action, questionList) {
           response = await database.runQuery(`createRole`, [answers.roleName, answers.roleSalary, answers.departmentChoice]);
           if (response['affectedRows'] > 0) {
             console.log(`Role ${answers.roleName} added.\n`);
+          } else {
+            console.log(`Role add failed. If error persists, contact support.\n`);
           }
           prompter('options');
 
@@ -155,7 +236,9 @@ async function prompter(action, questionList) {
         case "createEmployee":
           response = await database.runQuery(`createEmployee`, [answers.firstName, answers.lastName, answers.roleChoice, answers.mgrChoice]);
           if (response['affectedRows'] > 0) {
-            console.log(`Employee ${answers.firstName} ${answers.lastName} updated.\n`);
+            console.log(`Employee ${answers.firstName} ${answers.lastName} created.\n`);
+          } else {
+            console.log(`Employee add failed. If error persists, contact support.\n`);
           }
           prompter('options');
 
@@ -164,6 +247,8 @@ async function prompter(action, questionList) {
           response = await database.runQuery(`updateEmployeeRole`, [answers.roleChoice, answers.employee]);
           if (response['affectedRows'] > 0) {
             console.log(`Employee updated.\n`);
+          } else {
+            console.log(`Employee update failed. If error persists, contact support.\n`);
           }
           prompter('options');
 
