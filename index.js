@@ -65,9 +65,9 @@ async function prompter(action, questionList) {
             data.push(obj);
           });
 
-          questionList = questions.getQuestion('viewEmployeesByMgr', data);
-          prompter('listEmployeesByMgr', questionList);
+          questionList = questions.getQuestion('selectManager', data);
           //Loop
+          prompter('listEmployeesByMgr', questionList);
           break;
         //--------------------------------------------------------
         case ("View Employees By Department"):
@@ -78,9 +78,20 @@ async function prompter(action, questionList) {
             data.push(obj);
           });
 
-          questionList = questions.getQuestion('viewEmployeesByDept', data);
+          questionList = questions.getQuestion('selectDepartment', data);
           //Loop
           prompter('listEmployeesByDept', questionList);
+          break;
+        //--------------------------------------------------------
+        case ("View Department Budget"):
+          rows = await database.runQuery('listDepartments', "");
+          rows.forEach(element => {
+            obj = { name: element['Department Name'], value: element['Id'] };
+            data.push(obj);
+          });
+
+          questionList = questions.getQuestion('selectDepartment', data);
+          prompter('listDepartmentBudget', questionList);
           break;
         //--------------------------------------------------------
         case "Add Department":
@@ -236,7 +247,17 @@ async function prompter(action, questionList) {
             console.log("\nNo employees in this department.\n");
           }
           prompter('options');
+          break;
 
+        case "listDepartmentBudget":
+          rows = await database.runQuery(`listDepartmentBudget`, [answers.departmentChoice]);
+          if (rows[0]) {
+            console.log(`\nThe departments budget = ${rows[0]['Budget']}\n`);
+
+          } else {
+            console.log("\nNo budget for this department.\n");
+          }
+          prompter('options');
           break;
 
         case "createDepartment":
@@ -301,6 +322,7 @@ async function prompter(action, questionList) {
               console.log("No item selected to delete.\n");
             }
           }
+          //Loop
           prompter('options');
           break;
 
