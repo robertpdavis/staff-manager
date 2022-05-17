@@ -54,47 +54,48 @@ async function prompter(action, questionList) {
 
           console.log(`\nList of ${option}`);
           console.table(rows);
-          //Loop
+          //Call again for main options
           prompter('options');
           break;
         //--------------------------------------------------------
         case ("View Employees By Manager"):
+          //Get employee list from database for inquirer manager list selection data
           rows = await database.runQuery('listEmployees', "");
           rows.forEach(element => {
             obj = { name: (element['First Name'] + " " + element['Last Name']), value: element['Id'] };
             data.push(obj);
           });
-
+          //Get required question for inquirer
           questionList = questions.getQuestion('selectManager', data);
-          //Loop
           prompter('listEmployeesByMgr', questionList);
           break;
         //--------------------------------------------------------
         case ("View Employees By Department"):
-          //Get list of departments for question
+          //Get department list from database for inquirer department list selection data
           rows = await database.runQuery('listDepartments', "");
           rows.forEach(element => {
             obj = { name: element['Department Name'], value: element['Id'] };
             data.push(obj);
           });
-
+          //Get required question for inquirer
           questionList = questions.getQuestion('selectDepartment', data);
-          //Loop
           prompter('listEmployeesByDept', questionList);
           break;
         //--------------------------------------------------------
         case ("View Department Budget"):
+          //Get department list from database for inquirer department list selection data
           rows = await database.runQuery('listDepartments', "");
           rows.forEach(element => {
             obj = { name: element['Department Name'], value: element['Id'] };
             data.push(obj);
           });
-
+          //Get required question for inquirer
           questionList = questions.getQuestion('selectDepartment', data);
           prompter('listDepartmentBudget', questionList);
           break;
         //--------------------------------------------------------
         case "Add Department":
+          //Get required question for inquirer
           questionList = questions.getQuestion('createDepartment');
           console.log("Add a new department...");
           //Loop
@@ -102,13 +103,13 @@ async function prompter(action, questionList) {
           break;
         //--------------------------------------------------------
         case "Add Role":
-          //Get list of departments for question
+          //Get department list from database for inquirer department list selection data
           rows = await database.runQuery('listDepartments', "");
           rows.forEach(element => {
             obj = { name: element['Department Name'], value: element['Id'] };
             data.push(obj);
           });
-
+          //Get required question for inquirer
           questionList = questions.getQuestion('createRole', data);
           console.log("Add a new role...");
           //Loop
@@ -116,17 +117,18 @@ async function prompter(action, questionList) {
           break;
         //--------------------------------------------------------
         case "Add Employee":
-          //Get list of roles for question
           data = [];
           data[0] = [];
           data[1] = [];
 
+          //Get role list from database for inquirer role list selection data
           rows = await database.runQuery('listRoles', "");
           rows.forEach(element => {
             obj = { name: element['Job Title'], value: element['Id'] };
             data[0].push(obj);
           });
 
+          //Get employee list from database for inquirer manager list selection data
           rows = await database.runQuery('listEmployees', "");
           rows.forEach(element => {
             obj = { name: (element['First Name'] + " " + element['Last Name']), value: element['Id'] };
@@ -134,7 +136,7 @@ async function prompter(action, questionList) {
           });
           obj = { name: 'None', value: null };
           data[1].push(obj);
-
+          //Get required question for inquirer
           questionList = questions.getQuestion('createEmployee', data);
           console.log("Add a new employee...");
           prompter('createEmployee', questionList);
@@ -144,13 +146,13 @@ async function prompter(action, questionList) {
           data = [];
           data[0] = [];
           data[1] = [];
-
+          //Get role list from database for inquirer role list selection data
           rows = await database.runQuery('listRoles', "");
           rows.forEach(element => {
             obj = { name: element['Job Title'], value: element['Id'] };
             data[0].push(obj);
           });
-
+          //Get employee list from database for inquirer employee list selection data
           rows = await database.runQuery('listEmployees', "");
           rows.forEach(element => {
             obj = { name: (element['First Name'] + " " + element['Last Name']), value: element['Id'] };
@@ -158,7 +160,7 @@ async function prompter(action, questionList) {
           });
           obj = { name: 'None', value: null };
           data[1].push(obj);
-
+          //Get required question for inquirer
           questionList = questions.getQuestion('updateEmployeeRole', data);
           console.log("Update an employee...");
           prompter('updateEmployeeRole', questionList);
@@ -168,21 +170,22 @@ async function prompter(action, questionList) {
           data = [];
           data[0] = [];
           data[1] = [];
-
+          //Get employee list from database for inquirer employee list selection data
           rows = await database.runQuery('listEmployees', "");
           rows.forEach(element => {
             obj = { name: (element['First Name'] + " " + element['Last Name']), value: element['Id'] };
             data[0].push(obj);
           });
-
+          //Get employee list from database again for mangager list selection data
           rows = await database.runQuery('listEmployees', "");
           rows.forEach(element => {
             obj = { name: (element['First Name'] + " " + element['Last Name']), value: element['Id'] };
             data[1].push(obj);
           });
+          //Add a None to the list if no manager
           obj = { name: 'None', value: null };
           data[1].push(obj);
-
+          //Get required question for inquirer
           questionList = questions.getQuestion('updateEmployeeMgr', data);
           console.log("Update an employee...");
           prompter('updateEmployeeMgr', questionList);
@@ -194,6 +197,7 @@ async function prompter(action, questionList) {
 
           //Delete a department, role or employee
           option = answers.options.split(" ")[1];
+          //Get relevant table list from database for inquirer list selection data
           rows = await database.runQuery(`list${option}s`, "");
           rows.forEach(element => {
             if (option === "Department") {
@@ -205,7 +209,7 @@ async function prompter(action, questionList) {
             }
             data.push(obj);
           });
-
+          //Get required question for inquirer
           questionList = questions.getQuestion(`delete${option}`, data);
           console.log(`\nDelete ${option}`);
           prompter(`delete${option}`, questionList);
@@ -218,6 +222,7 @@ async function prompter(action, questionList) {
         //--------------------------------------------------------
         default:
           //If for some unknow reason it gets here, just go back to question menu
+          //Call again for main options
           prompter('options');
           break;
       }
@@ -225,6 +230,7 @@ async function prompter(action, questionList) {
       //Handle specfic actions from question
       switch (action) {
         //--------------------------------------------------------
+        //Display employees by selected manager
         case "listEmployeesByMgr":
           rows = await database.runQuery(`listEmployeesByMgr`, [answers.mgrChoice]);
           if (rows[0]) {
@@ -233,10 +239,12 @@ async function prompter(action, questionList) {
           } else {
             console.log("\nNo employees managed by this person.\n");
           }
+          //Call again for main options
           prompter('options');
 
           break;
         //--------------------------------------------------------
+        //Display employees by selected department
         case "listEmployeesByDept":
           rows = await database.runQuery(`listEmployeesByDept`, [answers.departmentChoice]);
           if (rows[0]) {
@@ -245,9 +253,11 @@ async function prompter(action, questionList) {
           } else {
             console.log("\nNo employees in this department.\n");
           }
+          //Call again for main options
           prompter('options');
           break;
         //--------------------------------------------------------
+        //Display budget for a selected department
         case "listDepartmentBudget":
           rows = await database.runQuery(`listDepartmentBudget`, [answers.departmentChoice]);
           if (rows[0]) {
@@ -255,7 +265,7 @@ async function prompter(action, questionList) {
           } else {
             console.log("\nNo budget for this department.\n");
           }
-
+          //Call again for main options
           prompter('options');
           break;
         //--------------------------------------------------------
@@ -266,7 +276,7 @@ async function prompter(action, questionList) {
           } else {
             console.log(`Department add failed. If error persists, contact support.\n`);
           }
-
+          //Call again for main options
           prompter('options');
           break;
         //--------------------------------------------------------        
@@ -277,7 +287,7 @@ async function prompter(action, questionList) {
           } else {
             console.log(`Role add failed. If error persists, contact support.\n`);
           }
-
+          //Call again for main options
           prompter('options');
           break;
         //--------------------------------------------------------
@@ -288,7 +298,7 @@ async function prompter(action, questionList) {
           } else {
             console.log(`Employee add failed. If error persists, contact support.\n`);
           }
-
+          //Call again for main options
           prompter('options');
           break;
         //--------------------------------------------------------
@@ -299,7 +309,7 @@ async function prompter(action, questionList) {
           } else {
             console.log(`Employee update failed. If error persists, contact support.\n`);
           }
-
+          //Call again for main options
           prompter('options');
           break;
         //--------------------------------------------------------
@@ -310,10 +320,11 @@ async function prompter(action, questionList) {
           } else {
             console.log(`Employee update failed. If error persists, contact support.\n`);
           }
-
+          //Call again for main options
           prompter('options');
           break;
         //--------------------------------------------------------
+        //Delete code for all tables
         case 'deleteDepartment':
         case 'deleteRole':
         case 'deleteEmployee':
@@ -333,7 +344,7 @@ async function prompter(action, questionList) {
               console.log("No item selected to delete.\n");
             }
           }
-
+          //Call again for main options
           prompter('options');
           break;
         //--------------------------------------------------------
