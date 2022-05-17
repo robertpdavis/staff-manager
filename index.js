@@ -164,14 +164,14 @@ async function prompter(action, questionList) {
           prompter('updateEmployeeRole', questionList);
           break;
         //--------------------------------------------------------
-        case "Update Employee Role":
+        case "Update Employee Manager":
           data = [];
           data[0] = [];
           data[1] = [];
 
-          rows = await database.runQuery('listRoles', "");
+          rows = await database.runQuery('listEmployees', "");
           rows.forEach(element => {
-            obj = { name: element['Job Title'], value: element['Id'] };
+            obj = { name: (element['First Name'] + " " + element['Last Name']), value: element['Id'] };
             data[0].push(obj);
           });
 
@@ -183,9 +183,9 @@ async function prompter(action, questionList) {
           obj = { name: 'None', value: null };
           data[1].push(obj);
 
-          questionList = questions.getQuestion('updateEmployeeRole', data);
+          questionList = questions.getQuestion('updateEmployeeMgr', data);
           console.log("Update an employee...");
-          prompter('updateEmployeeRole', questionList);
+          prompter('updateEmployeeMgr', questionList);
           break;
         //--------------------------------------------------------
         case ("Delete Department"):
@@ -205,18 +205,17 @@ async function prompter(action, questionList) {
             }
             data.push(obj);
           });
+
           questionList = questions.getQuestion(`delete${option}`, data);
-
-
           console.log(`\nDelete ${option}`);
           prompter(`delete${option}`, questionList);
           break;
-
+        //--------------------------------------------------------
         case "Exit":
           console.log("Goodbye!");
           process.exit(0);
           break;
-
+        //--------------------------------------------------------
         default:
           //If for some unknow reason it gets here, just go back to question menu
           prompter('options');
@@ -225,7 +224,7 @@ async function prompter(action, questionList) {
     } else {
       //Handle specfic actions from question
       switch (action) {
-
+        //--------------------------------------------------------
         case "listEmployeesByMgr":
           rows = await database.runQuery(`listEmployeesByMgr`, [answers.mgrChoice]);
           if (rows[0]) {
@@ -237,7 +236,7 @@ async function prompter(action, questionList) {
           prompter('options');
 
           break;
-
+        //--------------------------------------------------------
         case "listEmployeesByDept":
           rows = await database.runQuery(`listEmployeesByDept`, [answers.departmentChoice]);
           if (rows[0]) {
@@ -248,41 +247,40 @@ async function prompter(action, questionList) {
           }
           prompter('options');
           break;
-
+        //--------------------------------------------------------
         case "listDepartmentBudget":
           rows = await database.runQuery(`listDepartmentBudget`, [answers.departmentChoice]);
           if (rows[0]) {
             console.log(`\nThe departments budget = ${rows[0]['Budget']}\n`);
-
           } else {
             console.log("\nNo budget for this department.\n");
           }
+
           prompter('options');
           break;
-
+        //--------------------------------------------------------
         case "createDepartment":
-
           response = await database.runQuery(`createDepartment`, [answers.departmentName]);
-
           if (response['affectedRows'] > 0) {
             console.log(`Department ${answers.departmentName} added.\n`);
           } else {
             console.log(`Department add failed. If error persists, contact support.\n`);
           }
+
           prompter('options');
-
           break;
+        //--------------------------------------------------------        
         case "createRole":
-
           response = await database.runQuery(`createRole`, [answers.roleName, answers.roleSalary, answers.departmentChoice]);
           if (response['affectedRows'] > 0) {
             console.log(`Role ${answers.roleName} added.\n`);
           } else {
             console.log(`Role add failed. If error persists, contact support.\n`);
           }
-          prompter('options');
 
+          prompter('options');
           break;
+        //--------------------------------------------------------
         case "createEmployee":
           response = await database.runQuery(`createEmployee`, [answers.firstName, answers.lastName, answers.roleChoice, answers.mgrChoice]);
           if (response['affectedRows'] > 0) {
@@ -290,9 +288,10 @@ async function prompter(action, questionList) {
           } else {
             console.log(`Employee add failed. If error persists, contact support.\n`);
           }
-          prompter('options');
 
+          prompter('options');
           break;
+        //--------------------------------------------------------
         case "updateEmployeeRole":
           response = await database.runQuery(`updateEmployeeRole`, [answers.roleChoice, answers.employee]);
           if (response['affectedRows'] > 0) {
@@ -300,9 +299,21 @@ async function prompter(action, questionList) {
           } else {
             console.log(`Employee update failed. If error persists, contact support.\n`);
           }
+
           prompter('options');
           break;
+        //--------------------------------------------------------
+        case "updateEmployeeMgr":
+          response = await database.runQuery(`updateEmployeeMgr`, [answers.mgrChoice, answers.employee]);
+          if (response['affectedRows'] > 0) {
+            console.log(`Employee updated.\n`);
+          } else {
+            console.log(`Employee update failed. If error persists, contact support.\n`);
+          }
 
+          prompter('options');
+          break;
+        //--------------------------------------------------------
         case 'deleteDepartment':
         case 'deleteRole':
         case 'deleteEmployee':
@@ -322,10 +333,10 @@ async function prompter(action, questionList) {
               console.log("No item selected to delete.\n");
             }
           }
-          //Loop
+
           prompter('options');
           break;
-
+        //--------------------------------------------------------
         default:
           //If for some unknow reason it gets here, just go back to question menu
           prompter('options');

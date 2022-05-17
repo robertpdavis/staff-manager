@@ -60,7 +60,7 @@ Id  First Name  Last Name  Title              Department   Salary  Manager
 6   John        Porter     Software Engineer  Engineering  110000  Rick Barrett
 7   John        Scott      IT Manager         IT           200000  N/A
 ```
-See this video link for further details of functionality : 
+See this video link for further details of functionality : https://drive.google.com/file/d/1Zsj2OUDYd2wnFu5_Kvia0jVLh574RGRk/view
 
 ## Credits
 Rob Davis Github: [robertpdavis](https://github.com/robertpdavis)
